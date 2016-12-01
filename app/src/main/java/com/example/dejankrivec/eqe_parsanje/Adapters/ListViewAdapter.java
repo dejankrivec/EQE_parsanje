@@ -68,7 +68,7 @@ public class ListViewAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
 
-        ViewHolderItem holder; // to save views, so we dont have to call findviewbyid eachtime
+        ViewHolderItem holder; // Avoid from calling findviewbyid each time
         View ItemView = convertView;
 
         if(ItemView==null){
@@ -76,8 +76,7 @@ public class ListViewAdapter extends BaseAdapter {
             // invoke layout
             ItemView = inflater.inflate(R.layout.listview_reddit, null);
 
-            /****** View Holder Object to contain tabitem.xml file elements ******/
-
+            // find all views in layout
             holder = new ViewHolderItem();
             holder.Title = (TextView) ItemView.findViewById(R.id.Title);
             holder.Tagline=(TextView)ItemView.findViewById(R.id.Tagline);
@@ -87,7 +86,7 @@ public class ListViewAdapter extends BaseAdapter {
             // save holder with view
             ItemView.setTag( holder );
         }
-        else // we avoid from from calling findviewbyid each time
+        else
             holder=(ViewHolderItem)ItemView.getTag();
 
         if(data.size()>0)
@@ -150,7 +149,7 @@ public class ListViewAdapter extends BaseAdapter {
             if (imageViewReference != null) {
                 ImageView imageView = imageViewReference.get();
                 if (imageView != null) {
-                    imageView.setImageBitmap(bitmap);
+                    imageView.setImageBitmap(bitmap); // set image
                 }
             }
         }

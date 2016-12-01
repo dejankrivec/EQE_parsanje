@@ -63,10 +63,10 @@ public class MainActivity extends Activity {
         context = this;
         ButterKnife.bind(this);
 
-        if(isNetworkAvailable()) // Chek if device have enabled internet
+        if(isNetworkAvailable()) // Check for internet access
         {
-            new ParseData().execute(url); // call asynctask to parse data from input url
-            swipeContainer.setRefreshing(true); // show refreshing icon
+            new ParseData().execute(url); // AsyncTasck Parsing data
+            swipeContainer.setRefreshing(true); // Refreshing icon
         }
         else
             Toast.makeText(context, "No internet avaliable", Toast.LENGTH_LONG).show();
@@ -74,19 +74,17 @@ public class MainActivity extends Activity {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // Your code to refresh the list here.
-                // Make sure you call swipeContainer.setRefreshing(false)
-                // once the network request has completed successfully.
-                if(isNetworkAvailable()) // Chek if device have enabled internet
+                // Refresh your code here
+                if(isNetworkAvailable()) // Check for internet access
                 {
-                    new ParseData().execute(url); // lahko globalno defirniramo url lahko pa poslejmo kot parameter
+                    new ParseData().execute(url); // AsyncTasck Parsing data
                 }else
                     Toast.makeText(context, "No internet avaliable", Toast.LENGTH_LONG).show();
             }
 
         });
 
-
+        // If we want Parsing data on click
         /*parse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,7 +96,7 @@ public class MainActivity extends Activity {
             }
         });*/
     }
-    private boolean isNetworkAvailable() { // check for internet status
+    private boolean isNetworkAvailable() { // Check for internet access
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
@@ -106,28 +104,28 @@ public class MainActivity extends Activity {
         // check both because of error if activeNetwork is null then we cannot call isConnected which will cause error
     }
 
-    // 1.param = doInBackground input param,
-    // 2.param for onProgressUpdate we can update dialog,
-    // 3.param onPostExectute input param type and return type for doInBackground
     private class ParseData extends AsyncTask<String, Void, Void> {
         String desc;
-        ArrayList list = new ArrayList<HashMap<String, String>>(); // to store hasmaps which holds value of each item
+        ArrayList list = new ArrayList<HashMap<String, String>>(); // Parsing values
 
         public ParseData Progress;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             Progress = this;
+
+            // Dialog
             /*mProgressDialog = new ProgressDialog(MainActivity.this);
             mProgressDialog.setTitle("Parsing data");
             mProgressDialog.setMessage("Loading...");
             mProgressDialog.show();*/
-            new CountDownTimer(8000, 8000) { // check connection timeout, if internet access is limited, after 4 sec, stop parsing data.
+
+            new CountDownTimer(8000, 8000) { // Connection Timeout
                 public void onTick(long millisUntilFinished) {
                 }
                 public void onFinish() {
                     // stop async task if not in progress
-                    if (Progress.getStatus() == AsyncTask.Status.RUNNING) { // check if asyncTask still running
+                    if (Progress.getStatus() == AsyncTask.Status.RUNNING) { // Check if AsyncTask still running
                         Progress.cancel(false);
                         swipeContainer.setRefreshing(false); // close updating dialog
                         Toast.makeText(context, "No internet avaliable", Toast.LENGTH_LONG).show();
@@ -139,17 +137,16 @@ public class MainActivity extends Activity {
         @Override
         protected Void doInBackground(String... params) {
             try {
-                // Connect to the web site
-                Document document = Jsoup.connect(params[0]).get(); // parse data from url
+                // Get data from website
+                Document document = Jsoup.connect(params[0]).get();
 
-                // Using Elements to get the Meta data
-                Element content = document.select("div#siteTable").first(); // get content from specific div on website
+                // Get specific data
+                Element content = document.select("div#siteTable").first();
 
+                // Find all elements in parent
+                for(Element el : content.children().not("div.clearleft").not("div.nav-buttons")){
+                    HashMap<String, String> map = new HashMap<String, String>(); // Hashmap to store values
 
-                for(Element el : content.children().not("div.clearleft").not("div.nav-buttons")){ // go thru all childs of parent div
-                    HashMap<String, String> map = new HashMap<String, String>(); // create hasmap to store values
-                    int z = 0;
-                    //String p = img.attr("src");
                     String ImgPath = el.select("img").attr("src"); // Image path
                     String Title = el.select("p.title").select("a").text(); // Title
                     String TagLine = el.select("p.tagline").text(); // Tagline - submited when/who
@@ -174,12 +171,12 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPostExecute(Void result) {
-            // Set description into TextView
-            //tw.setText(desc); // add title of website to view
-            adapter = new ListViewAdapter(MainActivity.this,list); // call listview adapter;
-            listview.setAdapter(adapter); // fill listview;
+
+            // Fill Adapter for ListView
+            adapter = new ListViewAdapter(MainActivity.this,list);
+            listview.setAdapter(adapter); // add Adapter to ListView
             //mProgressDialog.dismiss(); // close dialog
-            swipeContainer.setRefreshing(false); // close updating dialog
+            swipeContainer.setRefreshing(false); // Close refreshing icon
         }
     }
 
